@@ -16,10 +16,13 @@ from ortools.sat.python import cp_model
 
 model = cp_model.CpModel()
 
+#read in the iridium view time data
 data = pd.read_csv("Iridium view data log.csv")
-
 targetdata = data.values.tolist()
 
+#read in the eclipse time data
+data = pd.read_csv("Eclipse data log.csv")
+eclipseData = data.values.tolist()
 
 #finding the maximum possible amount of observation
 total = 0
@@ -35,6 +38,11 @@ all_targets = range(j+1)
 
 # creates boolean array containing which satellite is being targeted and adds
 # the constraint that only one satellite may be targeted at a time
+
+#light =  {}
+#for ti in all_timeincrements:
+#    light[ti] = model.NewBoolVar('In sun at time index %i' % (ti))
+
 
 targets = {}
 for ti in all_timeincrements:
@@ -54,8 +62,11 @@ for ti in all_timeincrements:
     power[(ti)] = model.NewIntVar(-25,25,'ChangeinStoredenergy')
 
 
-model.add(sum(power[(ti)]) for ti in all_timeincrements > 0)
+model.Add(sum([power[ti] for ti in all_timeincrements]) > 0)
 
+for ti in all_timeincrements:
+    model.Add(power[ti] == 25).OnlyEnforceIf(eclipseData[ti] == T)
+    model.Add(power[ti] == -5).OnlyEnforceIf(eclipseData[ti] == False)
 
 # adds objective to maximise the amount of targeted satellites that are also in 
 # view, i.e. to maximise the time the PBR can potentially operate
