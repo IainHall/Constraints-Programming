@@ -29,8 +29,8 @@ for i in range(0,len(targetdata)):
 
 print(total)
 
-all_timeincrements = range(i)
-all_targets = range(j)
+all_timeincrements = range(i+1)
+all_targets = range(j+1)
 
 targets = {}
 for ti in all_timeincrements:
@@ -39,19 +39,30 @@ for ti in all_timeincrements:
 
 for ti in all_timeincrements:
     model.AddAtMostOne(targets[(ti,tr)] for tr in all_targets)
+  
+
+model.Maximize(sum(targetdata[ti][tr]* targets[(ti,tr)]  for tr in all_targets for ti in all_timeincrements))
     
 
-model.Maximize(sum(targetdata[ti][tr]* targets[(ti,tr)] for ti in all_timeincrements for tr in all_targets))
-    
 
 # Creates the solver and solve.
 solver = cp_model.CpSolver()
 status = solver.Solve(model)
 
+operating_time = 0
+
+for ti in all_timeincrements:
+    for tr in all_targets:
+        operating_time = operating_time + solver.Value(targets[(ti,tr)])
+
+
+
 if status == cp_model.OPTIMAL:
     print('Solution:')
-    print( f'Time increments spent in operational pointing = {solver.ObjectiveValue()}', 'out of %i' %(total))
-          
+    print( f'Time increments spent in operational pointing = {solver.ObjectiveValue()}', 'out of %i' %(total)  ) 
+    
+    print('total time spent targeting a satellite = %i' % (operating_time))
+    
           
 print("executed without error")
 
