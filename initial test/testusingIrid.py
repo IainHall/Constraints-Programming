@@ -37,8 +37,23 @@ for ti in all_timeincrements:
     for tr in all_targets:
         targets[(ti,tr)] = model.NewBoolVar('shift_time%itarget%i' % (ti,tr))
 
+for ti in all_timeincrements:
+    model.AddAtMostOne(targets[(ti,tr)] for tr in all_targets)
+    
 
+model.Maximize(sum(targetdata[ti][tr]* targets[(ti,tr)] for ti in all_timeincrements for tr in all_targets))
+    
 
+# Creates the solver and solve.
+solver = cp_model.CpSolver()
+status = solver.Solve(model)
+
+if status == cp_model.OPTIMAL:
+    print('Solution:')
+    print( f'Time increments spent in operational pointing = {solver.ObjectiveValue()}', 'out of %i' %(total))
+          
+          
+print("executed without error")
 
 
 
