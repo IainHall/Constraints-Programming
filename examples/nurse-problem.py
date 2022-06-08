@@ -80,7 +80,7 @@ solver.parameters.linearization_level = 0
 # Enumerate all solutions.
 solver.parameters.enumerate_all_solutions = True
 
-'''
+
 solver = cp_model.CpSolver()
 status = solver.Solve(model)
 
@@ -147,6 +147,6 @@ solution_printer = NursesPartialSolutionPrinter(shifts, num_nurses,
 solver.Solve(model, solution_printer)
 
 
-
+'''
 
 
