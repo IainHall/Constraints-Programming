@@ -13,6 +13,8 @@ Optimisation of data stored for SC
 # code to import the potential target data
 import pandas as pd
 import numpy as np
+import matplotlib as mlp
+import matplotlib.pyplot as plt
 from ortools.sat.python import cp_model
 
 model = cp_model.CpModel()
@@ -111,7 +113,34 @@ if status == cp_model.OPTIMAL:
     
 else:
     print('no optimal solution found')
-            
+
+print('executed')
+observing = [ 0 for t in all_T]
+value = [0 for t in all_T]
+allvalue = [0 for t in all_T]
+for t in all_T:
+    
+    allvalue[t] = max(targetdataValue[t][a] for a in all_sats)
+    
+    if sum(out[t][a] for a in all_sats) > 0 :
+        observing[t] = 1
+        value[t] = max(targetdataValue[t][a] for a in all_sats)
+
+
+
+
+
+fig, ax = plt.subplots()  # Create a figure containing a single axes.
+line1 = ax.plot(times[1:1000],allvalue[1:1000])
+line2 =ax.plot(times[1:1000],value[1:1000]);  # Plot some data on the axes.
+line3 =ax.plot(times[1:1000],observing[1:1000]);
+ax.set_title('Detection Value and chosen action plot')
+ax.legend(['All target observation oppurtunities','observed targets','observing (boolean)'])
+ax.set_xlabel('Time index')
+ax.set_ylabel('data value (avg detectable objects)')
+
+    
+    
 '''
 t = 1
 model.AddReservoirConstraint(t,sum( Data_per_Obs*action[(t,a)] * targetIlum[t][a] for a in all_sats ),0, Maxstorage)
@@ -129,7 +158,6 @@ for tau  in all_T:
         #delta_neg_data = sum(Down_link_rate * Downlink[t])
 '''
 
-print('executed')
 '''
 
 Maxstorage = 1e9
