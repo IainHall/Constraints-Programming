@@ -25,7 +25,7 @@ import pandas as pd
 import numpy as np
 import matplotlib as mlp
 import matplotlib.pyplot as plt
-
+from readwrite import xlsxOut
 
 #read in the illuminator data value (avg objects detected in time increment)
 data = pd.read_csv("../Data sets/5s, 5d, polar/Avg objects Detection log.csv ")
@@ -36,7 +36,11 @@ ilum_in_view = data.values.tolist()
 
 #read in the downlink data times
 data = pd.read_csv("../Data sets/5s, 5d, polar/Communications Data log.csv")
-downlink_possible= data.values.tolist() 
+datals= data.values.tolist() 
+
+downlink_possible = [datals[i][0] for i in range(0, len(datals))]
+    
+
 
 num_T = len(target_value) # final time incriment
 num_sats = 66   # illuminating satellites
@@ -53,6 +57,11 @@ target_sat = [[0 for s in all_sats] for t in all_T]
 maxStorage = 64e3
 dataPerObs = 1500
 dataPerPro = 29
+
+obsSize = 50
+proSize = 10
+dowSize = 100
+
 
 storedData= 0
 ObsStored = 0
@@ -74,14 +83,15 @@ for t in all_T:
             
         action[t][2] = 1
         storedData = storedData - 250
-        Downlinks += 1
+        Downlinks += dowSize
+        Processed -= dowSize
         
     elif sum(ilum_in_view[t][s] for s in all_sats)== 1 and storedData <= maxStorage + dataPerObs:  # observe decision pos 0
         
         action[t][0] = 1
         ObservedValue.append(max(target_value[t][s] for s in all_sats))
         storedData = storedData + dataPerObs
-        ObsStored += 1
+        ObsStored += obsSize
         
     elif ObsStored > 1:      # process decision  (pos 1)
     
@@ -89,16 +99,21 @@ for t in all_T:
         ProcessedValue.append(ObservedValue[ObsValIndex])
         ObsValIndex += 1
         
-        ObsStored -= 1 
-        Processed += 1
+        ObsStored -= proSize
+        Processed += proSize
         storedData = storedData - dataPerObs + dataPerPro
         
     else:
         action[t][3] =1     # idle decision pos 3
         
+titles = ['Observing', 'Processing', 'downlinking', 'idling']
+name = 'Manual Heuristic results'
+destination = "./results/"
+
+xlsxOut(action,titles,name,destination)
 
 
-
+print("completed manual heuristic")
 
 
 
