@@ -54,14 +54,14 @@ intervals = collections.defaultdict(list)
 all_tasks = {}       
         
 for t in all_T:
-    for s in all_sat:
+    for s in all_sat:   
         for task_id, task  in enumerate(job[t][s]):
             suffix = '_t%i_s%i_task%i' % (t, s, task_id)
             start_var = model.NewIntVar(0, maximum, 'start' + suffix)
             end_var = model.NewIntVar(0, maximum, 'end' + suffix)
             interval_var = model.NewIntervalVar(start_var, task, end_var, 'Interval' + suffix )
             all_tasks[t, s, task_id] = task_type(start=start_var, end=end_var,interval=interval_var)
-            intervals.append(interval_var)
+            intervals[0].append(interval_var)
 
 model.AddNoOverlap(intervals)
 
